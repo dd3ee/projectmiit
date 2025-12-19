@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Умная заявка на импортный товар</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --brand: #1a73e8;
+      --brand2: #1558b0;
+      --danger: #b91c1c;
+      --shadow: 0 10px 25px rgba(0,0,0,.06);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 10% 0%, rgba(26,115,232,.10), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(17,185,129,.10), transparent 55%),
+                  var(--bg);
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 44px auto;
+      padding: 0 18px 40px;
+    }
+    .hero {
+      background: linear-gradient(135deg, rgba(26,115,232,.14), rgba(17,185,129,.10));
+      border: 1px solid rgba(26,115,232,.18);
+      border-radius: var(--radius);
+      padding: 22px 22px 18px;
+      box-shadow: var(--shadow);
+    }
+    .hero h1 { margin: 0 0 6px; font-size: 24px; letter-spacing: .2px; }
+    .hero p { margin: 0; color: var(--muted); line-height: 1.45; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (min-width: 860px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      .span2 { grid-column: 1 / -1; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(26,115,232,.10);
+      color: var(--brand2);
+      border: 1px solid rgba(26,115,232,.18);
+      white-space: nowrap;
+    }
+    .field { margin-top: 12px; }
+    label {
+      display: block;
+      font-weight: 650;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .req::after { content: " *"; color: var(--danger); font-weight: 700; }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(26,115,232,.55);
+      box-shadow: 0 0 0 4px rgba(26,115,232,.12);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 860px) {
+      .row { grid-template-columns: 1fr 1fr; }
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .primary { background: var(--brand); color: #fff; }
+    .primary:hover { background: var(--brand2); }
+    .ghost {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #111827;
+    }
+    .ghost:hover { background: #f9fafb; }
+    .danger {
+      background: #fff;
+      border: 1px solid rgba(185,28,28,.25);
+      color: #991b1b;
+    }
+    .danger:hover { background: rgba(185,28,28,.06); }
+    .note { font-size: 12px; color: var(--muted); }
+    .hidden { display: none; }
+    .divider { height: 1px; background: var(--line); margin: 14px 0; }
+    .success {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(17,185,129,.10);
+      border: 1px solid rgba(17,185,129,.25);
+      color: #065f46;
+      display: none;
+    }
+    .itemShell {
+      border: 1px solid rgba(26,115,232,.18);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 14px;
+      background: linear-gradient(180deg, rgba(26,115,232,.04), transparent 40%);
+    }
+    .itemHead {
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--line);
+    }
+    .itemTitle {
+      display:flex; align-items:center; gap:10px;
+      font-weight: 750; color:#111827;
+    }
+    .pill {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(17,185,129,.10);
+      color: #065f46;
+      border: 1px solid rgba(17,185,129,.18);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Умная заявка на импортный товар</h1>
+      <p>
+        Заполните форму максимально подробно. Данные используются для подготовки технического описания,
+        подбора кода ТН ВЭД и ускорения таможенного оформления. Поля со звёздочкой обязательны.
+      </p>
+    </div>
+
+    <form id="smartForm" novalidate>
+      <div class="grid">
+        <div class="card">
+          <h2>Контакты <span class="badge">общее</span></h2>
+
+          <div class="field">
+            <label class="req">Название компании</label>
+            <input name="company" required placeholder="ООО «Пример»" />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="req">Контактное лицо</label>
+              <input name="person" required placeholder="ФИО" />
+            </div>
+            <div class="field">
+              <label class="req">Email / телефон</label>
+              <input name="contact" required placeholder="email или +7…" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Желаемый срок обработки</label>
+            <input name="deadline" placeholder="Например: до 25.12.2025" />
+            <div class="hint">Если срок критичен, укажите дату или временное окно.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Документы <span class="badge">входные данные</span></h2>
+
+          <div class="field">
+            <label>Ссылки на документы (invoice / packing list / спецификации)</label>
+            <textarea name="docs" placeholder="Вставьте ссылки на Google Drive/Dropbox/OneDrive или перечислите файлы."></textarea>
+            <div class="hint">Это ускоряет проверку и снижает число уточнений.</div>
+          </div>
+
+          <div class="field">
+            <label>Поставщик (название)</label>
+            <input name="supplier" placeholder="Компания-поставщик" />
+          </div>
+        </div>
+
+        <div class="card span2">
+          <h2>Товарные позиции <span class="badge">можно несколько</span></h2>
+
+          <div id="items"></div>
+
+          <div class="actions">
+            <button class="ghost" type="button" id="addItemBtn">+ Добавить товар</button>
+            <button class="ghost" type="button" id="resetBtn">Очистить</button>
+            <button class="primary" type="submit">Сформировать заявку</button>
+            <span class="note">Каждая позиция оформляется отдельно. Для интеграции данные можно отправлять в Google Sheets / 1С.</span>
+          </div>
+
+          <div class="success" id="successBox">
+            Заявка сформирована. Для интеграции: данные можно отправлять в Google Sheets / 1С через сервер или скрипт.
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <template id="itemTemplate">
+    <div class="itemShell" data-item>
+      <div class="itemHead">
+        <div class="itemTitle">
+          <span>Товарная позиция</span>
+          <span class="pill" data-itemIndex>1</span>
+        </div>
+        <button class="danger" type="button" data-removeBtn>Удалить позицию</button>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <div class="field">
+          <label class="req">Наименование товара</label>
+          <input data-name="name" required placeholder="Коммерческое наименование" />
+          <div class="hint">Избегайте общих слов вроде «оборудование». Лучше: «электродвигатель асинхронный…»</div>
+        </div>
+
+        <div class="field">
+          <label class="req">Модель / артикул</label>
+          <input data-name="model" required placeholder="Модель / SKU / артикул" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="req">Назначение товара</label>
+        <textarea data-name="purpose" required placeholder="Для каких целей используется товар? В какой сфере?"></textarea>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label class="req">Производитель</label>
+          <input data-name="manufacturer" required placeholder="Бренд / завод" />
+        </div>
+
+        <div class="field">
+          <label class="req">Страна происхождения</label>
+          <select data-name="origin" required>
+            <option value="">Выберите страну</option>
+            <option value="Австралия">Австралия</option>
+<option value="Австрия">Австрия</option>
+<option value="Азербайджан">Азербайджан</option>
+<option value="Албания">Албания</option>
+<option value="Алжир">Алжир</option>
+<option value="Ангола">Ангола</option>
+<option value="Андорра">Андорра</option>
+<option value="Антигуа и Барбуда">Антигуа и Барбуда</option>
+<option value="Аргентина">Аргентина</option>
+<option value="Армения">Армения</option>
+<option value="Афганистан">Афганистан</option>
+<option value="Багамы">Багамы</option>
+<option value="Бангладеш">Бангладеш</option>
+<option value="Барбадос">Барбадос</option>
+<option value="Бахрейн">Бахрейн</option>
+<option value="Беларусь">Беларусь</option>
+<option value="Белиз">Белиз</option>
+<option value="Бельгия">Бельгия</option>
+<option value="Бенин">Бенин</option>
+<option value="Болгария">Болгария</option>
+<option value="Боливия">Боливия</option>
+<option value="Босния и Герцеговина">Босния и Герцеговина</option>
+<option value="Ботсвана">Ботсвана</option>
+<option value="Бразилия">Бразилия</option>
+<option value="Бруней">Бруней</option>
+<option value="Буркина-Фасо">Буркина-Фасо</option>
+<option value="Бурунди">Бурунди</option>
+<option value="Бутан">Бутан</option>
+<option value="Вануату">Вануату</option>
+<option value="Ватикан">Ватикан</option>
+<option value="Великобритания">Великобритания</option>
+<option value="Венгрия">Венгрия</option>
+<option value="Венесуэла">Венесуэла</option>
+<option value="Вьетнам">Вьетнам</option>
+<option value="Габон">Габон</option>
+<option value="Гаити">Гаити</option>
+<option value="Гайана">Гайана</option>
+<option value="Гамбия">Гамбия</option>
+<option value="Гана">Гана</option>
+<option value="Гватемала">Гватемала</option>
+<option value="Гвинея">Гвинея</option>
+<option value="Гвинея-Бисау">Гвинея-Бисау</option>
+<option value="Германия">Германия</option>
+<option value="Гондурас">Гондурас</option>
+<option value="Гренада">Гренада</option>
+<option value="Греция">Греция</option>
+<option value="Грузия">Грузия</option>
+<option value="Дания">Дания</option>
+<option value="Джибути">Джибути</option>
+<option value="Доминика">Доминика</option>
+<option value="Доминиканская Республика">Доминиканская Республика</option>
+<option value="Египет">Египет</option>
+<option value="Замбия">Замбия</option>
+<option value="Зимбабве">Зимбабве</option>
+<option value="Израиль">Израиль</option>
+<option value="Индия">Индия</option>
+<option value="Индонезия">Индонезия</option>
+<option value="Иордания">Иордания</option>
+<option value="Ирак">Ирак</option>
+<option value="Иран">Иран</option>
+<option value="Ирландия">Ирландия</option>
+<option value="Исландия">Исландия</option>
+<option value="Испания">Испания</option>
+<option value="Италия">Италия</option>
+<option value="Йемен">Йемен</option>
+<option value="Кабо-Верде">Кабо-Верде</option>
+<option value="Казахстан">Казахстан</option>
+<option value="Камбоджа">Камбоджа</option>
+<option value="Камерун">Камерун</option>
+<option value="Канада">Канада</option>
+<option value="Катар">Катар</option>
+<option value="Кения">Кения</option>
+<option value="Кипр">Кипр</option>
+<option value="Киргизия">Киргизия</option>
+<option value="Кирибати">Кирибати</option>
+<option value="Китай">Китай</option>
+<option value="КНДР (Северная Корея)">КНДР (Северная Корея)</option>
+<option value="Колумбия">Колумбия</option>
+<option value="Коморы">Коморы</option>
+<option value="Конго (Республика)">Конго (Республика)</option>
+<option value="Конго (ДРК)">Конго (ДРК)</option>
+<option value="Коста-Рика">Коста-Рика</option>
+<option value="Кот-д’Ивуар">Кот-д’Ивуар</option>
+<option value="Куба">Куба</option>
+<option value="Кувейт">Кувейт</option>
+<option value="Лаос">Лаос</option>
+<option value="Латвия">Латвия</option>
+<option value="Лесото">Лесото</option>
+<option value="Либерия">Либерия</option>
+<option value="Ливан">Ливан</option>
+<option value="Ливия">Ливия</option>
+<option value="Литва">Литва</option>
+<option value="Лихтенштейн">Лихтенштейн</option>
+<option value="Люксембург">Люксембург</option>
+<option value="Маврикий">Маврикий</option>
+<option value="Мавритания">Мавритания</option>
+<option value="Мадагаскар">Мадагаскар</option>
+<option value="Малави">Малави</option>
+<option value="Малайзия">Малайзия</option>
+<option value="Мали">Мали</option>
+<option value="Мальдивы">Мальдивы</option>
+<option value="Мальта">Мальта</option>
+<option value="Марокко">Марокко</option>
+<option value="Маршалловы Острова">Маршалловы Острова</option>
+<option value="Мексика">Мексика</option>
+<option value="Микронезия">Микронезия</option>
+<option value="Мозамбик">Мозамбик</option>
+<option value="Молдова">Молдова</option>
+<option value="Монако">Монако</option>
+<option value="Монголия">Монголия</option>
+<option value="Мьянма">Мьянма</option>
+<option value="Намибия">Намибия</option>
+<option value="Науру">Науру</option>
+<option value="Непал">Непал</option>
+<option value="Нигер">Нигер</option>
+<option value="Нигерия">Нигерия</option>
+<option value="Нидерланды">Нидерланды</option>
+<option value="Никарагуа">Никарагуа</option>
+<option value="Новая Зеландия">Новая Зеландия</option>
+<option value="Норвегия">Норвегия</option>
+<option value="ОАЭ (Объединённые Арабские Эмираты)">ОАЭ (Объединённые Арабские Эмираты)</option>
+<option value="Оман">Оман</option>
+<option value="Пакистан">Пакистан</option>
+<option value="Палау">Палау</option>
+<option value="Панама">Панама</option>
+<option value="Папуа — Новая Гвинея">Папуа — Новая Гвинея</option>
+<option value="Парагвай">Парагвай</option>
+<option value="Перу">Перу</option>
+<option value="Польша">Польша</option>
+<option value="Португалия">Португалия</option>
+<option value="Россия">Россия</option>
+<option value="Руанда">Руанда</option>
+<option value="Румыния">Румыния</option>
+<option value="Сальвадор">Сальвадор</option>
+<option value="Самоа">Самоа</option>
+<option value="Сан-Марино">Сан-Марино</option>
+<option value="Сан-Томе и Принсипи">Сан-Томе и Принсипи</option>
+<option value="Саудовская Аравия">Саудовская Аравия</option>
+<option value="Северная Македония">Северная Македония</option>
+<option value="Сейшелы">Сейшелы</option>
+<option value="Сенегал">Сенегал</option>
+<option value="Сент-Винсент и Гренадины">Сент-Винсент и Гренадины</option>
+<option value="Сент-Китс и Невис">Сент-Китс и Невис</option>
+<option value="Сент-Люсия">Сент-Люсия</option>
+<option value="Сербия">Сербия</option>
+<option value="Сингапур">Сингапур</option>
+<option value="Сирия">Сирия</option>
+<option value="Словакия">Словакия</option>
+<option value="Словения">Словения</option>
+<option value="Соломоновы Острова">Соломоновы Острова</option>
+<option value="Сомали">Сомали</option>
+<option value="Судан">Судан</option>
+<option value="Суринам">Суринам</option>
+<option value="США (Соединённые Штаты Америки)">США (Соединённые Штаты Америки)</option>
+<option value="Сьерра-Леоне">Сьерра-Леоне</option>
+<option value="Таджикистан">Таджикистан</option>
+<option value="Таиланд">Таиланд</option>
+<option value="Танзания">Танзания</option>
+<option value="Того">Того</option>
+<option value="Тонга">Тонга</option>
+<option value="Тринидад и Тобаго">Тринидад и Тобаго</option>
+<option value="Тувалу">Тувалу</option>
+<option value="Тунис">Тунис</option>
+<option value="Туркменистан">Туркменистан</option>
+<option value="Турция">Турция</option>
+<option value="Уганда">Уганда</option>
+<option value="Узбекистан">Узбекистан</option>
+<option value="Украина">Украина</option>
+<option value="Уругвай">Уругвай</option>
+<option value="Фиджи">Фиджи</option>
+<option value="Филиппины">Филиппины</option>
+<option value="Финляндия">Финляндия</option>
+<option value="Франция">Франция</option>
+<option value="Хорватия">Хорватия</option>
+<option value="ЦАР (Центральноафриканская Республика)">ЦАР (Центральноафриканская Республика)</option>
+<option value="Чад">Чад</option>
+<option value="Черногория">Черногория</option>
+<option value="Чехия">Чехия</option>
+<option value="Чили">Чили</option>
+<option value="Швейцария">Швейцария</option>
+<option value="Швеция">Швеция</option>
+<option value="Шри-Ланка">Шри-Ланка</option>
+<option value="Эквадор">Эквадор</option>
+<option value="Экваториальная Гвинея">Экваториальная Гвинея</option>
+<option value="Эритрея">Эритрея</option>
+<option value="Эсватини">Эсватини</option>
+<option value="Эстония">Эстония</option>
+<option value="Эфиопия">Эфиопия</option>
+<option value="ЮАР (Южно-Африканская Республика)">ЮАР (Южно-Африканская Республика)</option>
+<option value="Южная Корея (Республика Корея)">Южная Корея (Республика Корея)</option>
+<option value="Южный Судан">Южный Судан</option>
+<option value="Ямайка">Ямайка</option>
+<option value="Япония">Япония</option>
+<option value="Палестина">Палестина</option>
+<option value="Косово">Косово</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div class="field">
+          <label class="req">Материал изготовления</label>
+          <input data-name="material" required placeholder="Например: сталь, алюминий, пластик" />
+        </div>
+
+        <div class="field">
+          <label>Состав (если применимо)</label>
+          <input data-name="composition" placeholder="Например: сталь 80%, медь 20%" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label class="req">Тип действия / принцип работы</label>
+          <select data-role="actionType" data-name="actionType" required>
+            <option value="">Выберите</option>
+            <option value="electric">Электрический</option>
+            <option value="mechanical">Механический</option>
+            <option value="hydraulic">Гидравлический</option>
+            <option value="pneumatic">Пневматический</option>
+            <option value="thermal">Тепловой</option>
+            <option value="chemical">Химический</option>
+            <option value="other">Другое</option>
+          </select>
+          <div class="hint">Выбор влияет на дополнительные поля, которые появятся ниже.</div>
+        </div>
+
+        <div class="field hidden" data-role="actionOtherWrap">
+          <label class="req">Укажите свой тип действия</label>
+          <input data-role="actionOther" data-name="actionOther" placeholder="Опишите принцип работы" />
+          <div class="hint">Кратко и по сути. Это важно для корректного описания и классификации.</div>
+        </div>
+      </div>
+
+      <div class="field hidden" data-role="actionInfoWrap">
+        <label>Дополнительная информация по принципу работы</label>
+        <textarea data-role="actionInfo" data-name="actionInfo" placeholder="Например: режимы работы, среда эксплуатации, особенности конструкции."></textarea>
+      </div>
+
+      <div class="card hidden" data-block="electric" style="margin-top:14px;">
+        <h2>Параметры для электрических товаров <span class="badge">логика</span></h2>
+        <div class="row">
+          <div class="field">
+            <label>Мощность</label>
+            <input data-name="power" placeholder="Например: 5 кВт" />
+          </div>
+          <div class="field">
+            <label>Напряжение</label>
+            <input data-name="voltage" placeholder="Например: 220 В / 380 В" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Частота</label>
+            <input data-name="frequency" placeholder="Например: 50 Гц" />
+          </div>
+          <div class="field">
+            <label>Фазность</label>
+            <select data-name="phase">
+              <option value="">Выберите</option>
+              <option>1 фаза</option>
+              <option>3 фазы</option>
+              <option>Другое / не знаю</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card hidden" data-block="hydraulic" style="margin-top:14px;">
+        <h2>Параметры для гидравлических товаров <span class="badge">логика</span></h2>
+        <div class="row">
+          <div class="field">
+            <label>Рабочее давление</label>
+            <input data-name="hPressure" placeholder="Например: 160 бар" />
+          </div>
+          <div class="field">
+            <label>Производительность / расход</label>
+            <input data-name="hFlow" placeholder="Например: 20 л/мин" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Рабочая жидкость</label>
+          <input data-name="hFluid" placeholder="Например: гидравлическое масло ISO VG 46" />
+        </div>
+      </div>
+
+      <div class="card hidden" data-block="pneumatic" style="margin-top:14px;">
+        <h2>Параметры для пневматических товаров <span class="badge">логика</span></h2>
+        <div class="row">
+          <div class="field">
+            <label>Рабочее давление</label>
+            <input data-name="pPressure" placeholder="Например: 6 бар" />
+          </div>
+          <div class="field">
+            <label>Расход воздуха</label>
+            <input data-name="pAir" placeholder="Например: 250 л/мин" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Рабочая среда</label>
+          <input data-name="pMedium" placeholder="Например: сжатый воздух, инертный газ" />
+        </div>
+      </div>
+
+      <div class="card hidden" data-block="mechanical" style="margin-top:14px;">
+        <h2>Параметры для механических товаров <span class="badge">логика</span></h2>
+        <div class="row">
+          <div class="field">
+            <label>Тип привода</label>
+            <input data-name="mDrive" placeholder="Например: ременной, цепной, ручной" />
+          </div>
+          <div class="field">
+            <label>Крутящий момент / усилие</label>
+            <input data-name="mTorque" placeholder="Например: 50 Н·м" />
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div class="field">
+          <label class="req">Габариты и вес</label>
+          <input data-name="dimensions" required placeholder="Например: 50×40×30 см; 25 кг" />
+        </div>
+        <div class="field">
+          <label class="req">Количество</label>
+          <input data-name="qty" type="number" min="0" step="1" required placeholder="Например: 2" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label class="req">Единица измерения</label>
+          <select data-name="unit" required>
+            <option value="">Выберите</option>
+            <option>шт</option>
+            <option>кг</option>
+            <option>м</option>
+            <option>комплект</option>
+            <option>упаковка</option>
+            <option>другое</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Область применения</label>
+          <input data-name="application" placeholder="Например: производственная линия, склад, медицина" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Дополнительные технические параметры</label>
+        <textarea data-name="tech" placeholder="Например: класс защиты IP, температура эксплуатации, стандарты, сертификаты."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Комментарий заказчика</label>
+        <textarea data-name="comment" placeholder="Любые уточнения, которые помогут быстрее обработать заявку."></textarea>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const itemsEl = document.getElementById('items');
+    const tpl = document.getElementById('itemTemplate');
+    const addBtn = document.getElementById('addItemBtn');
+
+    function setIndexLabels() {
+      const items = [...itemsEl.querySelectorAll('[data-item]')];
+      items.forEach((it, i) => {
+        const badge = it.querySelector('[data-itemIndex]');
+        if (badge) badge.textContent = (i + 1).toString();
+      });
+
+      // Do not allow deleting if only one item exists
+      items.forEach((it) => {
+        const rm = it.querySelector('[data-removeBtn]');
+        if (!rm) return;
+        rm.disabled = (items.length === 1);
+        rm.style.opacity = rm.disabled ? 0.45 : 1;
+        rm.style.cursor = rm.disabled ? 'not-allowed' : 'pointer';
+      });
+    }
+
+    function wireItem(item) {
+      const actionType = item.querySelector('[data-role="actionType"]');
+      const actionOtherWrap = item.querySelector('[data-role="actionOtherWrap"]');
+      const actionOther = item.querySelector('[data-role="actionOther"]');
+      const actionInfoWrap = item.querySelector('[data-role="actionInfoWrap"]');
+      const actionInfo = item.querySelector('[data-role="actionInfo"]');
+
+      const blocks = {
+        electric: item.querySelector('[data-block="electric"]'),
+        hydraulic: item.querySelector('[data-block="hydraulic"]'),
+        pneumatic: item.querySelector('[data-block="pneumatic"]'),
+        mechanical: item.querySelector('[data-block="mechanical"]')
+      };
+
+      function hideAllBlocks() {
+        Object.values(blocks).forEach(b => b && b.classList.add('hidden'));
+      }
+
+      function onActionChange() {
+        const v = actionType.value;
+
+        if (v === 'other') {
+          actionOtherWrap.classList.remove('hidden');
+          actionOther.required = true;
+          actionInfoWrap.classList.remove('hidden');
+        } else {
+          actionOtherWrap.classList.add('hidden');
+          actionOther.required = false;
+          actionOther.value = '';
+          actionInfoWrap.classList.add('hidden');
+          if (actionInfo) actionInfo.value = '';
+        }
+
+        hideAllBlocks();
+        if (v && blocks[v]) blocks[v].classList.remove('hidden');
+      }
+
+      actionType.addEventListener('change', onActionChange);
+
+      const rm = item.querySelector('[data-removeBtn]');
+      if (rm) {
+        rm.addEventListener('click', () => {
+          const all = itemsEl.querySelectorAll('[data-item]');
+          if (all.length <= 1) return;
+          item.remove();
+          setIndexLabels();
+        });
+      }
+    }
+
+    function addItem() {
+      const node = tpl.content.cloneNode(true);
+      const item = node.querySelector('[data-item]');
+      itemsEl.appendChild(node);
+      const last = itemsEl.querySelectorAll('[data-item]');
+      const added = last[last.length - 1];
+      wireItem(added);
+      setIndexLabels();
+      return added;
+    }
+
+    addBtn.addEventListener('click', () => {
+      const it = addItem();
+      it.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.getElementById('smartForm').reset();
+      itemsEl.innerHTML = '';
+      addItem();
+      document.getElementById('successBox').style.display = 'none';
+    });
+
+    document.getElementById('smartForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const required = document.querySelectorAll('[required]');
+      let ok = true;
+      required.forEach(el => {
+        if (!el.value || (el.type === 'number' && el.value === '')) {
+          ok = false;
+          el.focus();
+          el.style.borderColor = 'rgba(185,28,28,.6)';
+          el.style.boxShadow = '0 0 0 4px rgba(185,28,28,.10)';
+        } else {
+          el.style.borderColor = 'var(--line)';
+          el.style.boxShadow = 'none';
+        }
+      });
+      if (!ok) return;
+
+      document.getElementById('successBox').style.display = 'block';
+      document.getElementById('successBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    // init with one item
+    addItem();
+  </script>
+</body>
+</html>
